@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>RequestsTest</title>
+  <style>
+    .img-wrapper{
+      display: inline-block;
+      width: 300px;
+    }
+    img{ 
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <form id='form'>
+    <input type="text" name='query' value="night">
+  </form>
+
+  <script>
+    'use strict'  
+    const form = document.getElementById('form');
+    let query = form.elements.query.value;
+
+    form.onsubmit = (e) => {
+      e.preventDefault();
+
+      let curImgs = document.querySelectorAll('.img-wrapper');
+      curImgs.forEach(item => item.remove());
+      // console.log(curImgs);
+      
+      let currQuery = form.elements.query.value;
+      makeRequest(currQuery);
+    }
+    let cache = new Map();
+
+    /* const createImg = ({largeImageURL, webformatURL}) => {
+      let div = document.createElement('div');
+      div.className = 'img-wrapper';
+      cache.set(webformatURL, largeImageURL);
+      div.innerHTML = `<img src='${webformatURL}' data-large='${largeImageURL}'>`
+      
+      return div;
+    } */
+
+    const createImg = (webformatURL) => {
+      let div = document.createElement('div');
+      div.className = 'img-wrapper';
+      div.innerHTML = `<img src='${webformatURL}'>`
+
+      // cache.set(webformatURL, largeImageURL);
+      document.body.append(div);
+      return div;
+    }
+
+    const setImages = ({hits}) => {
+      let imgsArr = hits.map(item => createImg(item));
+      return imgsArr;
+    }
+    
+
+    function makeRequest(query){
+      fetch(`https://pixabay.com/api/?key=13863081-cfc3b9a87c9f70c0bb449a8f3&q=${query}&image_type=photo&per_page=20`)
+      .then(res => res.json())
+      .then(imgs => {
+        // console.log(setImages(imgs));
+        preLoadImgs(imgs);
+        return imgs;
+      })
+      .then(data => console.log(data))
+    }
+    
+
+    function preLoadImgs({hits}) {
+      hits.forEach(item => fetch(item.webformatURL).then(res => createImg(res.url)));
+      console.log('WAS REQUESTED');
+      console.log(cache);
+    }
+    makeRequest(query);
+
+    
+  </script>
+  
+</body>
+</html>

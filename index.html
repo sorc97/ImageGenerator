@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>ImageGenerator</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/media.css" media="all and (max-width: 900px)">
+</head>
+
+<body>
+  <!-- Filters -->
+  <section class="filters">
+    <form class="search-form">
+      <input type="text" name="query" placeholder="Search query">
+      <input type="submit" value="Serch" name="search" max="100">
+      <label>Elements per page: <input type="number" value="50" class="perPage"></label>
+    </form>
+  </section>
+  <!-- Images -->
+  <main class="content">
+    <div class="images">
+      <div class="column"></div>
+      <div class="column"></div>
+      <div class="column"></div>
+      <div class="column"></div>
+    </div>
+    <div class="mainContent-loader">
+      <img src="./imgs/45.gif" alt="loader">
+    </div>
+  </main>
+  <!-- Modal  -->
+  <div class="modal">
+    <img src="./imgs/load3.svg" alt="loader" class="loader">
+    <img src="" alt="" class="modal-img" hidden>
+  </div>
+
+  <script src="./script/index.js"></script>
+</body>
+
+</html>
