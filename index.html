@@ -16,10 +16,13 @@
     <form class="search-form">
       <div class="search-field">
         <input type="text" name="query" placeholder="Search query">
-        <input type="submit" value="Serch" name="search">
+        <input type="submit" value="Search" name="search">
       </div>
-      <div class="additional-fileds">
-        <label>Images on page: <input name="perPage" type="number" value="50" class="perPage" max="200"></label>
+      <div class="additional-fields">
+        <label class="perPage-label">
+          Images on page: 
+          <input name="perPage" type="number" value="30" class="perPage-input" max="200">
+        </label>
       </div>
     </form>
   </section>
@@ -37,8 +40,10 @@
   </main>
   <!-- Modal  -->
   <div class="modal">
-    <img src="./imgs/load3.svg" alt="loader" class="loader">
+    <!-- <img src="./imgs/load3.svg" alt="loader" class="loader"> -->
+    <img src="./imgs/25.svg" alt="loader" class="modal-loader">
     <img src="" alt="" class="modal-img" hidden>
+    <button class="modal-close" type="button">&times;</button>
   </div>
 
   <script src="./script/index.js"></script>

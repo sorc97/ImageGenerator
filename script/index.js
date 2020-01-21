@@ -8,8 +8,9 @@ const contentSection = document.querySelector('.content');
 const modal = document.querySelector('.modal');
 const modalImage = document.querySelector('.modal-img');
 const columns = document.querySelectorAll('.column');
-const loader = document.querySelector('.loader');
+const modalLoader = document.querySelector('.modal-loader');
 const mainContentLoader = document.querySelector('.mainContent-loader');
+let currentPage = 1;
 let isMainDataFetched = false;
 let isImageLoaded = false;
 let isModalOpen = false;
@@ -19,12 +20,12 @@ let isModalOpen = false;
 const replaceLoader = () => {
   if (isImageLoaded) {
     modalImage.hidden = false;
-    loader.hidden = true;
+    modalLoader.hidden = true;
     return;
   }
 
   modalImage.hidden = true;
-  loader.hidden = false;
+  modalLoader.hidden = false;
   /* modalImage.hidden = !modalImage.hidden;
   loader.hidden = !loader.hidden; */
 }
@@ -52,7 +53,8 @@ const showModal = (src) => {
 }
 
 const hideModal = e => {
-  if (!e.target.classList.contains('modal')) return;
+  const targetClasses = e.target.classList;
+  if (!(targetClasses.contains('modal') || targetClasses.contains('modal-close'))) return;
 
   isImageLoaded = false;
   isModalOpen = false;
@@ -64,7 +66,7 @@ const hideModal = e => {
 }
 
 const handleClick = e => {
-  let target = e.target;
+  const target = e.target;
   if (!target.classList.contains('grid-img')) return;
 
   showModal(target.dataset.large);
@@ -75,13 +77,20 @@ document.body.addEventListener('click', handleClick);
 
 //Query
 const getUrl = () => {
-  const query = form.elements.query.value || 'town';
-  const imagesPerPage = form.elements.perPage.value || 50;
+  // const query = form.elements.query.value || 'town';
+  const { query, imagesPerPage } = getCurrentFormValues();
   // const imagesPerPage = document.querySelector('.perPage').value || 50;
   // const imagesPerPage = elementsPerPage.value || 50;
 
-  return `https://pixabay.com/api/?key=13863081-cfc3b9a87c9f70c0bb449a8f3&q=${query}&image_type=photo&per_page=${imagesPerPage}`
+  return `https://pixabay.com/api/?key=13863081-cfc3b9a87c9f70c0bb449a8f3&q=${query}&image_type=photo&per_page=${imagesPerPage}&page=${currentPage}`
   // return `https://pixabay.com/api/?key=13863081-cfc3b9a87c9f70c0bb449a8f3&q=${query}&image_type=photo&per_page=${imagesPerPage}&min_width=1920&min_height=1080`
+}
+
+function getCurrentFormValues() {
+  return {
+    query: form.elements.query.value || 'town',
+    imagesPerPage: form.elements.perPage.value || 20
+  }
 }
 
 // Error Message
@@ -118,15 +127,30 @@ const hideErrorMessage = () => {
 form.addEventListener('submit', e => {
   e.preventDefault();
   // if(!elementsPerPageValidation()) return;
-  
+
+  currentPage = 1;
+  getImages();
+
+  /* let url = getUrl();
+
+  columns.forEach(item => item.innerHTML = ''); // Columns cleaning
+
+  toggleMainDataLoader();
+  hideErrorMessage();
+  hideLearnMoreButton();
+  makeRequest(url); */
+});
+
+function getImages() {
   let url = getUrl();
 
   columns.forEach(item => item.innerHTML = ''); // Columns cleaning
 
   toggleMainDataLoader();
   hideErrorMessage();
+  hideLearnMoreButton();
   makeRequest(url);
-});
+}
 
 /* const elementsPerPageValidation = () => {
   const perPageElement = form.elements.perPage;
@@ -152,7 +176,9 @@ async function makeRequest(url) {
       return;
     }
 
-    handleResponse(data.hits);
+    console.log(data);
+
+    handleResponse(data);
   } catch (error) {
     showErrorMessage("404 Error");
     console.error(`Can't load data from server`);
@@ -161,14 +187,20 @@ async function makeRequest(url) {
 
 const handleResponse = data => {
   let imgsList = [];
+  const { query, imagesPerPage } = getCurrentFormValues();
 
-  data.forEach(img => {
+  if ( data.totalHits > +imagesPerPage * currentPage ) {
+    showLoadMoreButton();
+  }
+
+  data.hits.forEach(img => {
     const newImg = createImg(img);
     imgsList = [...imgsList, newImg];
   });
 
   timeDec(setImgs)(imgsList);
-  console.log(data);
+  console.log(data.hits);
+  console.log(currentPage);
   observe();
   toggleMainDataLoader();
 }
@@ -202,6 +234,44 @@ function setImgs(imgs) {
   if (imgsList.length) {
     imgsList.forEach((item, i) => columns[i].append(item));
   }
+}
+
+// Load more button 
+
+class LoadMoreButton {
+  constructor() {
+    const buttonElement = document.createElement('button');
+    buttonElement.type = 'button';
+    buttonElement.className = 'loadMore-button';
+    buttonElement.innerHTML = 'Load More';
+
+    buttonElement.onclick = () => {
+      window.scrollTo(0, 0);
+      currentPage++;
+      getImages();
+    }
+
+    return buttonElement;
+  }
+}
+
+const showLoadMoreButton = () => {
+  const currentElement = document.querySelector('.loadMore-button');
+
+  if (!currentElement) {
+    contentSection.append(new LoadMoreButton());
+    return;
+  }
+
+  currentElement.hidden = false;
+}
+
+const hideLearnMoreButton = () => {
+  const currentElement = document.querySelector('.loadMore-button');
+  
+  if(!currentElement) return;
+
+  currentElement.hidden = true;
 }
 
 // Lazy Load
