@@ -98,8 +98,13 @@ input[name='search']{
   background-image: url(../imgs/30.gif);
   background-repeat: no-repeat;
   background-position: center;
-  transition: box-shadow .3s ease;
-  transition: opacity .3s ease;
+  transition: .3s ease;
+  transition-property: box-shadow, opacity;
+}
+
+.img-wrapper:hover {
+  opacity: 0.8;
+  box-shadow: 0px 2px 10px #000000e8;
 }
 
 .grid-img {
@@ -118,11 +123,6 @@ input[name='search']{
   width: 100%;
   min-height: inherit; */
   opacity: 1;
-}
-
-.img-wrapper:hover {
-  opacity: 0.8;
-  box-shadow: 0px 2px 10px #000000e8;
 }
 
 .appearence{

@@ -4,6 +4,7 @@ let form = document.querySelector('.search-form');
 let imgs = [];
 let counter = 0;
 // let elemsPerColumn = 0;
+const contentSection = document.querySelector('.content');
 const modal = document.querySelector('.modal');
 const modalImage = document.querySelector('.modal-img');
 const columns = document.querySelectorAll('.column');
@@ -21,7 +22,7 @@ const replaceLoader = () => {
     loader.hidden = true;
     return;
   }
-  
+
   modalImage.hidden = true;
   loader.hidden = false;
   /* modalImage.hidden = !modalImage.hidden;
@@ -29,6 +30,7 @@ const replaceLoader = () => {
 }
 
 const toggleMainDataLoader = () => {
+  isMainDataFetched = !isMainDataFetched;
   mainContentLoader.style.display = (isMainDataFetched) ? 'none' : 'flex';
 }
 
@@ -75,10 +77,39 @@ document.body.addEventListener('click', handleClick);
 //Query
 const getUrl = () => {
   const query = form.elements.query.value || 'town';
-  const imagesPerPage = document.querySelector('.perPage').value;
+  const imagesPerPage = document.querySelector('.perPage').value || 50;
 
   return `https://pixabay.com/api/?key=13863081-cfc3b9a87c9f70c0bb449a8f3&q=${query}&image_type=photo&per_page=${imagesPerPage}`
   // return `https://pixabay.com/api/?key=13863081-cfc3b9a87c9f70c0bb449a8f3&q=${query}&image_type=photo&per_page=${imagesPerPage}&min_width=1920&min_height=1080`
+}
+
+// Error Message
+const createErrorMessage = (message) => {
+  const messageElement = document.createElement('h2');
+  messageElement.className = "error-message";
+  messageElement.textContent = message;
+
+  return messageElement;
+}
+
+const showErrorMessage = (message) => {
+  const currentErrorMessage = document.querySelector('.error-message');
+
+  if (!currentErrorMessage) {
+    const messageElement = createErrorMessage(message);
+    contentSection.append(messageElement);
+    return;
+  }
+
+  currentErrorMessage.textContent = message;
+  currentErrorMessage.hidden = false;
+}
+
+const hideErrorMessage = () => {
+  const currentErrorMessage = document.querySelector('.error-message');
+  if(currentErrorMessage) {
+    currentErrorMessage.hidden = true;    
+  }
 }
 
 // Form's submit handling
@@ -88,9 +119,9 @@ form.addEventListener('submit', e => {
 
   columns.forEach(item => item.innerHTML = ''); // Columns cleaning
   imgs = [];  // Images cleaning
-  isMainDataFetched = false;
 
   toggleMainDataLoader();
+  hideErrorMessage();
   makeRequest(url);
 })
 
@@ -99,14 +130,20 @@ function makeRequest(url) {
   fetch(url)
     .then(res => res.json())
     .then(data => {
+      if (!data.hits.length) {  // response with no images
+        showErrorMessage("Can't find any of images");
+        toggleMainDataLoader();
+        return;
+      }
+
       data.hits.forEach(img => createImg(img))
       timeDec(setImgs)(imgs);
       console.log(data);
       observe();
-      isMainDataFetched = true;
       toggleMainDataLoader();
       return data;
     })
+    .catch(e => console.error(`Error was occured ${e}`));
   // .then(item => console.log(item.hits))
 }
 
@@ -121,8 +158,8 @@ const createImg = ({ webformatURL, largeImageURL }) => {
       data-large=${largeImageURL}
       class='grid-img'
     >`;
-    // src='./imgs/load2.svg' 
-    // class='grid-img'
+  // src='./imgs/load2.svg' 
+  // class='grid-img'
 
   imgs = [...imgs, div];
 }
