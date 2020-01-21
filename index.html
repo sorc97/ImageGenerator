@@ -14,10 +14,14 @@
   <!-- Filters -->
   <section class="filters">
     <form class="search-form">
-      <input type="text" name="query" placeholder="Search query">
-      <input type="submit" value="Serch" name="search">
+      <div class="search-field">
+        <input type="text" name="query" placeholder="Search query">
+        <input type="submit" value="Serch" name="search">
+      </div>
+      <div class="additional-fileds">
+        <label>Images on page: <input name="perPage" type="number" value="50" class="perPage" max="200"></label>
+      </div>
     </form>
-    <label>Elements per page: <input type="number" value="50" class="perPage" max="200"></label>
   </section>
   <!-- Images -->
   <main class="content">

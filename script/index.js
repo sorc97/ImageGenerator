@@ -1,8 +1,8 @@
 'use strict'
 
 let form = document.querySelector('.search-form');
-let imgs = [];
 let counter = 0;
+const maximumElementsPerPage = 200;
 // let elemsPerColumn = 0;
 const contentSection = document.querySelector('.content');
 const modal = document.querySelector('.modal');
@@ -57,7 +57,6 @@ const hideModal = e => {
   isImageLoaded = false;
   isModalOpen = false;
   modal.style.display = 'none';
-  if (modalImage.classList.contains("tall")) modalImage.classList.remove('tall');
   replaceLoader();
 
   document.body.removeEventListener('click', hideModal);
@@ -77,7 +76,9 @@ document.body.addEventListener('click', handleClick);
 //Query
 const getUrl = () => {
   const query = form.elements.query.value || 'town';
-  const imagesPerPage = document.querySelector('.perPage').value || 50;
+  const imagesPerPage = form.elements.perPage.value || 50;
+  // const imagesPerPage = document.querySelector('.perPage').value || 50;
+  // const imagesPerPage = elementsPerPage.value || 50;
 
   return `https://pixabay.com/api/?key=13863081-cfc3b9a87c9f70c0bb449a8f3&q=${query}&image_type=photo&per_page=${imagesPerPage}`
   // return `https://pixabay.com/api/?key=13863081-cfc3b9a87c9f70c0bb449a8f3&q=${query}&image_type=photo&per_page=${imagesPerPage}&min_width=1920&min_height=1080`
@@ -94,6 +95,7 @@ const createErrorMessage = (message) => {
 
 const showErrorMessage = (message) => {
   const currentErrorMessage = document.querySelector('.error-message');
+  toggleMainDataLoader();
 
   if (!currentErrorMessage) {
     const messageElement = createErrorMessage(message);
@@ -107,48 +109,73 @@ const showErrorMessage = (message) => {
 
 const hideErrorMessage = () => {
   const currentErrorMessage = document.querySelector('.error-message');
-  if(currentErrorMessage) {
-    currentErrorMessage.hidden = true;    
+  if (currentErrorMessage) {
+    currentErrorMessage.hidden = true;
   }
 }
 
 // Form's submit handling
 form.addEventListener('submit', e => {
   e.preventDefault();
+  // if(!elementsPerPageValidation()) return;
+  
   let url = getUrl();
 
   columns.forEach(item => item.innerHTML = ''); // Columns cleaning
-  imgs = [];  // Images cleaning
 
   toggleMainDataLoader();
   hideErrorMessage();
   makeRequest(url);
-})
+});
+
+/* const elementsPerPageValidation = () => {
+  const perPageElement = form.elements.perPage;
+  const currentValue = perPageElement.value;
+
+  if(currentValue > 200) {
+    showErrorMessage('Maximum 200 elements');
+
+    return false;
+  }
+
+  return true;
+} */
 
 //Request
-function makeRequest(url) {
-  fetch(url)
-    .then(res => res.json())
-    .then(data => {
-      if (!data.hits.length) {  // response with no images
-        showErrorMessage("Can't find any of images");
-        toggleMainDataLoader();
-        return;
-      }
+async function makeRequest(url) {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
 
-      data.hits.forEach(img => createImg(img))
-      timeDec(setImgs)(imgs);
-      console.log(data);
-      observe();
-      toggleMainDataLoader();
-      return data;
-    })
-    .catch(e => console.error(`Error was occured ${e}`));
-  // .then(item => console.log(item.hits))
+    if (!data.hits.length) {  //Response with no images
+      showErrorMessage("Can't find any of images");
+      return;
+    }
+
+    handleResponse(data.hits);
+  } catch (error) {
+    showErrorMessage("404 Error");
+    console.error(`Can't load data from server`);
+  }
+}
+
+const handleResponse = data => {
+  let imgsList = [];
+
+  data.forEach(img => {
+    const newImg = createImg(img);
+    imgsList = [...imgsList, newImg];
+  });
+
+  timeDec(setImgs)(imgsList);
+  console.log(data);
+  observe();
+  toggleMainDataLoader();
 }
 
 //ImageElement
-const createImg = ({ webformatURL, largeImageURL }) => {
+
+function createImg({ webformatURL, largeImageURL }) {
   let div = document.createElement('div');
   div.className = 'img-wrapper';
   div.innerHTML = `
@@ -158,27 +185,24 @@ const createImg = ({ webformatURL, largeImageURL }) => {
       data-large=${largeImageURL}
       class='grid-img'
     >`;
-  // src='./imgs/load2.svg' 
-  // class='grid-img'
 
-  imgs = [...imgs, div];
+  return div;
 }
 
 function setImgs(imgs) {
   const columnsAmount = columns.length;
   const elemsPerColumn = Math.floor(imgs.length / 4);
-  let imgsClone = [...imgs];
+  let imgsList = [...imgs];
 
   for (let i = 0; i < columnsAmount; i++) {
-    let insertImgs = imgsClone.splice(0, elemsPerColumn);
+    let insertImgs = imgsList.splice(0, elemsPerColumn);
     columns[i].append(...insertImgs);
   }
 
-  if (imgsClone.length) {
-    imgsClone.forEach((item, i) => columns[i].append(item));
+  if (imgsList.length) {
+    imgsList.forEach((item, i) => columns[i].append(item));
   }
 }
-
 
 // Lazy Load
 function observe() {
@@ -198,8 +222,6 @@ function observe() {
             image.parentElement.style.backgroundImage = 'none';
             image.parentElement.style.minHeight = 'auto';
           }
-          // image.classList.add('appearence');
-          // image.classList.add('loaded');
 
           observer.disconnect();
         }
