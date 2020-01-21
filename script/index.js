@@ -34,10 +34,33 @@ const toggleMainDataLoader = () => {
   mainContentLoader.style.display = (isMainDataFetched) ? 'none' : 'flex';
 }
 
-const showModal = (src) => {
+const showModal = (element) => {
+  const smallImage = element.dataset.src;
+  const largeImage = element.dataset.large;
+  const height = element.dataset.height;
+  const width = element.dataset.width;
+  cleanWidthHeight(modalImage);
+
+  if(height > width) {
+    modalImage.style.height = '1280px';
+  } else {
+    modalImage.style.width = '1280px';
+  }
+  
   modalImage.classList.add('appearence');
-  modalImage.src = src;
+  modalImage.src = smallImage;
   console.log(isImageLoaded);
+
+  const bigImage = document.createElement('img');
+  bigImage.src = largeImage;
+  console.log(bigImage.offsetHeight);
+  console.log(bigImage.offsetWidth);
+
+  bigImage.onload = function() {
+    // cleanWidthHeight(modalImage);
+    modalImage.src = this.src;
+  }
+
 
   modalImage.onload = () => {
     if (!isModalOpen) return;
@@ -49,6 +72,11 @@ const showModal = (src) => {
 
   document.body.addEventListener('click', hideModal);
   isModalOpen = true;
+}
+
+const cleanWidthHeight = (elem) => {
+  elem.style.width = "";
+  elem.style.height = "";
 }
 
 const hideModal = e => {
@@ -67,7 +95,8 @@ const handleClick = e => {
   let target = e.target;
   if (!target.classList.contains('grid-img')) return;
 
-  showModal(target.dataset.large);
+  // showModal(target.dataset.large);
+  showModal(e.target);
 }
 
 document.body.addEventListener('click', handleClick);
@@ -175,14 +204,17 @@ const handleResponse = data => {
 
 //ImageElement
 
-function createImg({ webformatURL, largeImageURL }) {
+function createImg({ webformatURL, largeImageURL, imageWidth, imageHeight }) {
   let div = document.createElement('div');
   div.className = 'img-wrapper';
+  // const size = Math.max(imageHeight, imageWidth); 
   div.innerHTML = `
     <img 
       src='' 
       data-src=${webformatURL} 
       data-large=${largeImageURL}
+      data-height=${imageHeight}
+      data-width=${imageWidth}
       class='grid-img'
     >`;
 
