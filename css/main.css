@@ -200,7 +200,7 @@ input[name='query']:focus {
   -webkit-box-align: center;
   align-items: center;
   background-color: rgba(204, 204, 204, 0.356);
-  background-image: url(../imgs/30.gif);
+  background-image: url(../imgs/lineLoader1.gif);
   background-repeat: no-repeat;
   background-position: center;
   -webkit-transition: .3s ease;
