@@ -2,10 +2,8 @@
 // Config
 const DEFAULT_QUERY = 'town';
 
+// let counter = 0;
 let form = document.querySelector('.search-form');
-let counter = 0;
-let previousQuery = DEFAULT_QUERY;
-// let elemsPerColumn = 0;
 const contentSection = document.querySelector('.content');
 const modal = document.querySelector('.modal');
 const modalImage = document.querySelector('.modal-img');
@@ -13,6 +11,7 @@ const columns = document.querySelectorAll('.column');
 const modalLoader = document.querySelector('.modal-loader');
 const mainContentLoader = document.querySelector('.mainContent-loader');
 let currentPage = 1;
+let previousQuery = DEFAULT_QUERY;
 let isMainDataFetched = false;
 let isModalImageLoaded = false;
 let isModalOpen = false;
@@ -52,6 +51,7 @@ class Img {
     div.innerHTML = `
       <img 
         src='' 
+        alt='found img'
         data-src=${webformatURL} 
         data-large=${largeImageURL}
         class='grid-img'
@@ -106,9 +106,15 @@ const hideModal = e => {
 
   isModalImageLoaded = false;
   isModalOpen = false;
-  modal.style.display = 'none';  // Change visibility of the modal window 
-  toggleModalLoader();  // Return loader
 
+  modal.classList.add('fadeOut');  // Add animation
+
+  setTimeout(() => {  // Wait till animation ended
+    modal.classList.remove('fadeOut');  // Remove animation
+    modal.style.display = 'none';  // Change visibility of the modal window 
+    toggleModalLoader();  // Return loader
+  }, 250);
+  
   document.body.removeEventListener('click', hideModal);  // Remove click listener from body 
 }
 

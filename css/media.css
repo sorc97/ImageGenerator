@@ -1,12 +1,14 @@
 @media screen and (max-width: 992px) {
-  .column{
+  .column {
+    -webkit-box-flex: 50%;
     flex: 50%;
     max-width: 50%;
   }
 }
 
 @media screen and (max-width: 576px) {
-  .column{
+  .column {
+    -webkit-box-flex: 100%;
     flex: 100%;
     max-width: 100%;
   }
