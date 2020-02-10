@@ -2,7 +2,6 @@
 // Config
 const DEFAULT_QUERY = 'town';
 
-// let counter = 0;
 let form = document.querySelector('.search-form');
 const contentSection = document.querySelector('.content');
 const modal = document.querySelector('.modal');
@@ -15,7 +14,6 @@ let previousQuery = DEFAULT_QUERY;
 let isMainDataFetched = false;
 let isModalImageLoaded = false;
 let isModalOpen = false;
-// let loaderTimer;
 
 // Components
 
@@ -294,14 +292,3 @@ function observe() {
 }
 
 makeRequest(getUrl(getCurrentFormValues()));
-
-function timeDec(func) {
-  return function () {
-    let start = Date.now();
-
-    let result = func.apply(this, arguments);
-
-    console.log(`Function execute time: ${Date.now() - start} ms`);
-    return result;
-  }
-}
